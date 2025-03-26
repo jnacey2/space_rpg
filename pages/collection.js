@@ -27,7 +27,7 @@ export default function Collection() {
   ];
   
   return (
-    <Layout title="Your Collection - Space Collectors RPG">
+    <Layout title="Your Collection - Stellar Vanguard">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: -20 }}

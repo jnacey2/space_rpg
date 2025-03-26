@@ -746,7 +746,7 @@ export default function BattlePage() {
   };
   
   return (
-    <Layout title="Battle - Space Collectors RPG">
+    <Layout title="Battle - Stellar Vanguard">
       <div className="container mx-auto">
         {battleMode === 'select' && (
           <motion.div

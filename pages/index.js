@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <Layout title="Space Collectors RPG - Home">
+    <Layout title="Stellar Vanguard - Home">
       <div className="min-h-[80vh] flex flex-col items-center justify-center text-center">
         <motion.div
           initial={{ opacity: 0, y: -50 }}
