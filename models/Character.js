@@ -13,8 +13,11 @@ class Character {
 
   levelUp() {
     if (this.exp >= this.expToNextLevel()) {
+      // Store excess experience
+      const excess = this.exp - this.expToNextLevel();
+      
       this.level += 1;
-      this.exp = 0;
+      this.exp = excess; // Carry over excess experience
       
       // Increase stats based on level up
       this.stats.attack += Math.floor(this.stats.attack * 0.1);
@@ -23,18 +26,27 @@ class Character {
       this.stats.speed += Math.floor(this.stats.speed * 0.05);
       this.stats.special += Math.floor(this.stats.special * 0.1);
       
+      console.log(`${this.name} leveled up to ${this.level}! Stats increased:`, this.stats);
       return true;
     }
     return false;
   }
   
   expToNextLevel() {
-    return 100 * this.level;
+    return Math.floor(100 * Math.pow(1.1, this.level - 1));
   }
   
   addExp(amount) {
+    console.log(`${this.name} gaining ${amount} experience`);
     this.exp += amount;
-    return this.levelUp();
+    console.log(`${this.name} now has ${this.exp}/${this.expToNextLevel()} experience`);
+    
+    // Keep leveling up while we have enough experience
+    let leveled = false;
+    while (this.exp >= this.expToNextLevel()) {
+      leveled = this.levelUp() || leveled;
+    }
+    return leveled;
   }
   
   calculateDamage(target, ability) {

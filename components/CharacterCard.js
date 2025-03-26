@@ -23,8 +23,8 @@ const CharacterCard = ({ character, isSelected, onClick, className = '', disable
   const isDisabled = disabled || (character.currentHealth <= 0);
 
   // Calculate experience progress
-  const xpNeeded = character.level * 100;
-  const xpProgress = (character.experience / xpNeeded) * 100;
+  const xpNeeded = character.expToNextLevel ? character.expToNextLevel() : character.level * 100;
+  const xpProgress = Math.min(100, Math.floor((character.exp / xpNeeded) * 100));
 
   const handleClick = () => {
     debugLog('CLICK', `Character card clicked: ${character.name} (ID: ${character.id})`, {
@@ -78,7 +78,7 @@ const CharacterCard = ({ character, isSelected, onClick, className = '', disable
           
           {/* Experience Text */}
           <div className="absolute bottom-1 right-2 text-xs text-white/80">
-            {character.experience}/{xpNeeded} XP
+            {character.exp}/{xpNeeded} XP
           </div>
           
           <div className="mt-4 grid grid-cols-2 gap-2">

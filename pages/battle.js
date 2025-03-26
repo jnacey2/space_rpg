@@ -666,21 +666,40 @@ export default function BattlePage() {
           currentBattle.playerTeam.forEach(battleChar => {
             const localChar = localPlayerCharacters.find(c => c.id === battleChar.id);
             if (localChar) {
-              // Create a proper Character instance for the local character
+              // Create proper Ability instances
+              const abilities = localChar.abilities.map(ability => 
+                new Ability(
+                  ability.id,
+                  ability.name,
+                  ability.description || '',
+                  ability.power,
+                  ability.type,
+                  ability.cooldown,
+                  ability.effectChance || 0,
+                  ability.effect
+                )
+              );
+              
+              // Create a proper Character instance with the current state
               const updatedChar = new Character(
                 localChar.id,
                 localChar.name,
                 localChar.rarity,
-                localChar.level,
-                localChar.exp,
-                localChar.imageUrl,
+                localChar.level || 1,
+                localChar.exp || 0,
+                localChar.imageUrl || '',
                 localChar.species,
-                localChar.abilities,
-                localChar.stats
+                abilities,
+                { ...localChar.stats }
               );
               
               // Add experience and handle level up
+              console.log(`Adding ${results.rewards.exp} experience to ${updatedChar.name}`);
+              console.log('Before:', { level: updatedChar.level, exp: updatedChar.exp });
+              
               const leveledUp = updatedChar.addExp(results.rewards.exp);
+              
+              console.log('After:', { level: updatedChar.level, exp: updatedChar.exp });
               if (leveledUp) {
                 console.log(`${updatedChar.name} leveled up to level ${updatedChar.level}!`);
               }
@@ -688,7 +707,19 @@ export default function BattlePage() {
               // Update the character in the local array
               const charIndex = localPlayerCharacters.findIndex(c => c.id === localChar.id);
               if (charIndex !== -1) {
-                localPlayerCharacters[charIndex] = updatedChar;
+                localPlayerCharacters[charIndex] = {
+                  ...updatedChar,
+                  abilities: abilities.map(ability => ({
+                    id: ability.id,
+                    name: ability.name,
+                    description: ability.description,
+                    power: ability.power,
+                    type: ability.type,
+                    cooldown: ability.cooldown,
+                    effectChance: ability.effectChance,
+                    effect: ability.effect
+                  }))
+                };
               }
             }
           });
@@ -707,6 +738,20 @@ export default function BattlePage() {
             // Randomly select one character to unlock
             const newCharacter = availableToUnlock[Math.floor(Math.random() * availableToUnlock.length)];
             
+            // Create proper Ability instances for the new character
+            const newAbilities = newCharacter.abilities.map(ability => 
+              new Ability(
+                ability.id,
+                ability.name,
+                ability.description || '',
+                ability.power,
+                ability.type,
+                ability.cooldown,
+                ability.effectChance || 0,
+                ability.effect
+              )
+            );
+            
             // Create a new character instance at level 1
             const unlockedChar = new Character(
               newCharacter.id,
@@ -716,21 +761,25 @@ export default function BattlePage() {
               0, // exp
               '', // imageUrl
               newCharacter.species,
-              newCharacter.abilities.map(ability => new Ability(
-                ability.id,
-                ability.name,
-                ability.description || '',
-                ability.power,
-                ability.type,
-                ability.cooldown,
-                ability.effectChance || 0,
-                ability.effect
-              )),
+              newAbilities,
               { ...newCharacter.baseStats }
             );
             
-            // Add to local storage
-            localPlayerCharacters.push(unlockedChar);
+            // Add to local storage with properly serialized abilities
+            localPlayerCharacters.push({
+              ...unlockedChar,
+              abilities: newAbilities.map(ability => ({
+                id: ability.id,
+                name: ability.name,
+                description: ability.description,
+                power: ability.power,
+                type: ability.type,
+                cooldown: ability.cooldown,
+                effectChance: ability.effectChance,
+                effect: ability.effect
+              }))
+            });
+            
             localStorage.setItem('playerCharacters', JSON.stringify(localPlayerCharacters));
             
             // Update current battle's player team
