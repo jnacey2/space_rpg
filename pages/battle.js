@@ -109,18 +109,18 @@ export default function BattlePage() {
           level: 5,
           species: 'Void Entity',
           stats: {
-            attack: 80,
-            defense: 50,
-            health: 450,
-            speed: 65,
-            special: 60
+            attack: 65,
+            defense: 45,
+            health: 350,
+            speed: 55,
+            special: 45
           },
           abilities: [
             { 
               id: 3, 
               name: 'Gravity Surge', 
               description: 'Manipulates gravity to crush enemies', 
-              power: 40, 
+              power: 35, 
               type: 'damage', 
               cooldown: 2 
             },
@@ -128,10 +128,10 @@ export default function BattlePage() {
               id: 5, 
               name: 'Neural Disruption', 
               description: 'Disrupts neural pathways', 
-              power: 30, 
+              power: 25, 
               type: 'damage', 
               cooldown: 1, 
-              effectChance: 50, 
+              effectChance: 40, 
               effect: { type: 'stun', amount: 0, duration: 1 } 
             }
           ]
@@ -143,18 +143,18 @@ export default function BattlePage() {
           level: 8,
           species: 'Cybernetic Human',
           stats: {
-            attack: 100,
-            defense: 70,
-            health: 600,
-            speed: 70,
-            special: 90
+            attack: 75,
+            defense: 55,
+            health: 400,
+            speed: 60,
+            special: 65
           },
           abilities: [
             { 
               id: 4, 
               name: 'Quantum Strike', 
               description: 'Attacks across multiple dimensions', 
-              power: 50, 
+              power: 40, 
               type: 'damage', 
               cooldown: 3 
             },
@@ -166,17 +166,17 @@ export default function BattlePage() {
               type: 'buff', 
               cooldown: 4, 
               effectChance: 100, 
-              effect: { type: 'speed', amount: 20, duration: 2 } 
+              effect: { type: 'speed', amount: 15, duration: 2 } 
             },
             { 
               id: 6, 
               name: 'Toxic Venom', 
               description: 'Injects a deadly alien toxin', 
-              power: 20, 
+              power: 15, 
               type: 'damage', 
               cooldown: 1, 
-              effectChance: 70, 
-              effect: { type: 'poison', amount: 10, duration: 3 } 
+              effectChance: 60, 
+              effect: { type: 'poison', amount: 8, duration: 3 } 
             }
           ]
         }
