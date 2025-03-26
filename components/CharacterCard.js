@@ -8,7 +8,7 @@ const debugLog = (area, message, data = null) => {
   console.log(`[${timestamp}][CHAR_CARD][${area}] ${message}`, data || '');
 };
 
-const CharacterCard = ({ character, isSelected, onClick, className = '' }) => {
+const CharacterCard = ({ character, isSelected, onClick, className = '', disabled = false, targetCharacter = null }) => {
   // Determine border color based on rarity
   const rarityColors = {
     common: 'border-gray-400',
@@ -19,7 +19,6 @@ const CharacterCard = ({ character, isSelected, onClick, className = '' }) => {
   };
   
   const borderColor = rarityColors[character.rarity] || rarityColors.common;
-  const isSelected = selectedCharacter?.id === character.id;
   const isTarget = targetCharacter?.id === character.id;
   const isDisabled = disabled || (character.currentHealth <= 0);
 
