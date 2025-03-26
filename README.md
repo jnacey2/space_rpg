@@ -1,140 +1,69 @@
 # Stellar Vanguard: Tactical RPG
 
-An epic sci-fi tactical RPG where you command a team of diverse heroes in turn-based strategic combat. Lead your elite squad of humans, androids, and xenomorphs in intense battles across the cosmos. Built with Next.js and featuring dynamic character abilities, deep team management, and strategic decision-making.
+A sci-fi tactical RPG built with Next.js, featuring turn-based battles, character progression, and unlockable characters.
 
-## 🚀 Features
+## Features
 
-### Battle System
-- **Turn-Based Combat**: Strategic combat system where players and enemies take alternating turns
-- **Dynamic Abilities**: Each character has unique abilities with different effects:
-  - Damage abilities for attacking enemies
-  - Healing abilities for supporting allies
-  - Buff abilities for enhancing team members
-- **Cooldown System**: Abilities have cooldowns to encourage strategic planning
-- **Status Effects**: Various effects like poison, stun, and regeneration
+- **Character Collection**: Build your team from a diverse roster of characters
+- **Turn-Based Combat**: Strategic battles with unique abilities and cooldowns
+- **Character Progression**: Level up your characters and unlock new abilities
+- **Experience System**: Gain XP from battles to level up your characters
+- **Unlockable Characters**: Discover new characters as you progress
+- **Multiple Difficulties**: Choose between easy and hard battle modes
+- **Persistent Progress**: Save your character progress between sessions
+
+## Getting Started
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/stellar-vanguard.git
+cd stellar-vanguard
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Run the development server:
+```bash
+npm run dev
+```
+
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Game Mechanics
 
 ### Characters
-- **Diverse Species**:
-  - Humans
-  - Androids
-  - Xenomorphs
-  - Altered Humans
-  - Mechanical beings
-- **Character Stats**:
-  - Health: Character's hit points
-  - Attack: Determines damage output
-  - Defense: Reduces incoming damage
-  - Speed: Affects turn order
-  - Special: Enhances ability effects
+- Each character has unique stats and abilities
+- Characters can be leveled up through battle experience
+- New characters can be unlocked after winning battles
+- Experience is tracked per character with a visual progress bar
 
-### Team Management
-- Build teams of up to 3 characters
-- Mix and match different species and abilities
-- Strategic character selection based on abilities and synergies
+### Battle System
+- Turn-based combat with speed-based turn order
+- Each character has unique abilities with cooldowns
+- Strategic targeting and ability selection
+- Multiple difficulty levels for different challenges
 
-### Progression System
-- Experience points (XP) gained from battles
-- Gold rewards for victories
-- Character leveling system
-- Stat improvements upon level up
+### Progression
+- Characters gain experience from battles
+- Level up to increase stats and unlock new abilities
+- 20% chance to unlock a new character after winning battles
+- Progress is saved automatically
 
-### Battle Modes
-- **Easy Mode**: Fight against basic enemies with standard abilities
-- **Hard Mode**: Challenge yourself against advanced enemies with powerful abilities and effects
+## Technologies Used
 
-## 🎮 How to Play
-
-1. **Team Selection**
-   - Choose up to 3 characters for your battle team
-   - Consider character abilities and team composition
-
-2. **Battle Preparation**
-   - Select battle difficulty (Easy/Hard)
-   - Review your team's abilities and stats
-
-3. **Combat**
-   - Battles proceed in turns based on character speed
-   - On your turn:
-     1. Select a character
-     2. Choose an ability
-     3. Select a target
-     4. Execute the action
-   - Enemy AI will automatically take their turns
-
-4. **Strategy Tips**
-   - Use cooldowns wisely
-   - Consider target selection carefully
-   - Balance damage dealers with support characters
-   - Watch for status effects and counters
-
-## 🛠️ Technical Details
-
-### Built With
 - Next.js
 - React
-- Framer Motion for animations
-- Tailwind CSS for styling
+- Tailwind CSS
+- Framer Motion
+- Local Storage for progress persistence
 
-### Key Components
-- `BattleInterface`: Main battle UI and logic
-- `CharacterCard`: Character display and selection
-- `Battle`: Core battle mechanics
-- `Character`: Character stats and abilities
-- `Ability`: Ability definitions and effects
+## Contributing
 
-### State Management
-- React state for UI components
-- Battle state managed through Battle class
-- Local storage for progress saving
-
-## 🚀 Getting Started
-
-1. **Installation**
-   ```bash
-   npm install
-   ```
-
-2. **Development**
-   ```bash
-   npm run dev
-   ```
-
-3. **Production Build**
-   ```bash
-   npm run build
-   npm start
-   ```
-
-## 🎯 Future Features
-- More character species and abilities
-- Equipment system
-- Campaign mode
-- PvP battles
-- Character customization
-- Advanced status effects
-- Special events and missions
-
-## 🐛 Debug Mode
-- Debug mode available for development
-- Displays detailed battle information
-- Shows character states and ability cooldowns
-- Includes force turn advancement for testing
-
-## 🎨 UI Features
-- Sci-fi themed interface
-- Animated ability effects
-- Battle log system
-- Health and status displays
-- Character portraits
-- Responsive design for all screen sizes
-
-## 💾 Save System
-- Progress automatically saved
-- Character levels and experience persist
-- Team configurations remembered
-
-## 🤝 Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📝 License
-This project is licensed under the MIT License - see the LICENSE file for details. 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
