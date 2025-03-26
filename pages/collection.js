@@ -1,21 +1,48 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Layout from '../components/Layout';
 import CharacterCard from '../components/CharacterCard';
 import { getPlayerCharacters } from '../models/characterData';
+import Character from '../models/Character';
 
 export default function Collection() {
-  const characters = getPlayerCharacters();
+  const [characters, setCharacters] = useState([]);
   const [selectedCharacter, setSelectedCharacter] = useState(null);
-  const [filterRarity, setFilterRarity] = useState('all');
+  const [filterRarity, setFilterRarity] = useState('All Rarities');
+  
+  useEffect(() => {
+    // Load characters from localStorage
+    const loadCharacters = () => {
+      try {
+        const savedChars = JSON.parse(localStorage.getItem('playerCharacters'));
+        if (savedChars) {
+          // Convert saved data back to Character instances
+          const loadedChars = savedChars.map(charData => Character.fromJSON(charData));
+          setCharacters(loadedChars);
+          console.log('Loaded characters:', loadedChars);
+        } else {
+          // If no saved characters, use default ones
+          const defaultChars = getPlayerCharacters();
+          setCharacters(defaultChars);
+          localStorage.setItem('playerCharacters', JSON.stringify(defaultChars));
+        }
+      } catch (error) {
+        console.error('Error loading characters:', error);
+        const defaultChars = getPlayerCharacters();
+        setCharacters(defaultChars);
+      }
+    };
+
+    loadCharacters();
+  }, []);
   
   const handleCharacterSelect = (character) => {
     setSelectedCharacter(character);
   };
   
-  const filteredCharacters = filterRarity === 'all' 
-    ? characters 
-    : characters.filter(char => char.rarity === filterRarity);
+  const filteredCharacters = filterRarity === 'All Rarities'
+    ? characters
+    : characters.filter(char => char.rarity.toLowerCase() === filterRarity.toLowerCase());
   
   const rarityOptions = [
     { value: 'all', label: 'All Rarities' },
@@ -58,10 +85,9 @@ export default function Collection() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredCharacters.map(character => (
-              <div key={character.id}>
+              <div key={character.id} onClick={() => setSelectedCharacter(character)}>
                 <CharacterCard 
                   character={character}
-                  onClick={handleCharacterSelect}
                   isSelected={selectedCharacter?.id === character.id}
                 />
               </div>

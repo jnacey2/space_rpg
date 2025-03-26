@@ -3,12 +3,45 @@ class Character {
     this.id = id;
     this.name = name;
     this.rarity = rarity; // common, uncommon, rare, epic, legendary
-    this.level = level;
-    this.exp = exp;
+    this.level = parseInt(level) || 1;
+    this.exp = parseInt(exp) || 0;
     this.imageUrl = imageUrl;
     this.species = species;
     this.abilities = abilities; // array of ability objects
     this.stats = stats; // { attack, defense, health, speed, special }
+
+    // Bind methods to ensure they're available after serialization
+    this.expToNextLevel = this.expToNextLevel.bind(this);
+    this.addExp = this.addExp.bind(this);
+    this.levelUp = this.levelUp.bind(this);
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name,
+      rarity: this.rarity,
+      level: this.level,
+      exp: this.exp,
+      imageUrl: this.imageUrl,
+      species: this.species,
+      abilities: this.abilities,
+      stats: this.stats
+    };
+  }
+
+  static fromJSON(json) {
+    return new Character(
+      json.id,
+      json.name,
+      json.rarity,
+      json.level,
+      json.exp,
+      json.imageUrl,
+      json.species,
+      json.abilities,
+      json.stats
+    );
   }
 
   levelUp() {

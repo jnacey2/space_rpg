@@ -18,12 +18,14 @@ const CharacterCard = ({ character, isSelected, onClick, className = '', disable
     legendary: 'border-yellow-400'
   };
   
-  const borderColor = rarityColors[character.rarity] || rarityColors.common;
+  const borderColor = rarityColors[character.rarity.toLowerCase()] || rarityColors.common;
   const isTarget = targetCharacter?.id === character.id;
-  const isDisabled = disabled || (character.currentHealth <= 0);
+  const isDisabled = disabled || (character.stats?.health <= 0);
 
   // Calculate experience progress
-  const xpNeeded = character.expToNextLevel ? character.expToNextLevel() : character.level * 100;
+  const xpNeeded = typeof character.expToNextLevel === 'function' 
+    ? character.expToNextLevel() 
+    : Math.floor(100 * Math.pow(1.1, character.level - 1));
   const xpProgress = Math.min(100, Math.floor((character.exp / xpNeeded) * 100));
 
   const handleClick = () => {
@@ -52,11 +54,11 @@ const CharacterCard = ({ character, isSelected, onClick, className = '', disable
       onClick={onClick && !isDisabled ? handleClick : undefined}
     >
       <div className={`relative rounded-lg overflow-hidden ${borderColor} ${isSelected ? 'ring-2 ring-neon-green' : ''} ${isTarget ? 'ring-2 ring-red-500' : ''} ${isDisabled ? 'opacity-50' : ''}`}>
-        <div className="relative z-10">
+        <div className="relative z-10 p-4">
           <div className="flex justify-between items-start mb-2">
             <h3 className="text-xl font-futuristic text-white">{character.name}</h3>
             <span className="px-2 py-1 text-xs rounded-full bg-black/50 uppercase font-bold" 
-                  style={{ color: rarityColors[character.rarity].replace('border-', '') }}>
+                  style={{ color: rarityColors[character.rarity.toLowerCase()].replace('border-', '') }}>
               {character.rarity}
             </span>
           </div>
@@ -64,21 +66,6 @@ const CharacterCard = ({ character, isSelected, onClick, className = '', disable
           <div className="flex gap-2 mb-2">
             <span className="text-sm bg-black/30 px-2 py-1 rounded">{character.species}</span>
             <span className="text-sm bg-black/30 px-2 py-1 rounded">LVL {character.level}</span>
-          </div>
-          
-          {/* Experience Bar */}
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/30">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${xpProgress}%` }}
-              transition={{ duration: 0.5 }}
-              className="h-full bg-neon-green"
-            />
-          </div>
-          
-          {/* Experience Text */}
-          <div className="absolute bottom-1 right-2 text-xs text-white/80">
-            {character.exp}/{xpNeeded} XP
           </div>
           
           <div className="mt-4 grid grid-cols-2 gap-2">
@@ -108,12 +95,34 @@ const CharacterCard = ({ character, isSelected, onClick, className = '', disable
               ))}
             </ul>
           </div>
+          
+          {/* Experience Bar */}
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/30">
+            <div
+              className="h-full bg-neon-green transition-all duration-500"
+              style={{ width: `${xpProgress}%` }}
+            />
+          </div>
+          
+          {/* Experience Text */}
+          <div className="absolute bottom-1 right-2 text-xs text-white/80">
+            {character.exp}/{xpNeeded} XP
+          </div>
         </div>
         
         {/* Background character silhouette */}
         <div className="absolute right-2 top-2 h-20 w-20 opacity-20 z-0">
           <div className="w-full h-full rounded-full bg-space-gradient"></div>
         </div>
+        
+        {/* Clickable overlay */}
+        {onClick && !isDisabled && (
+          <button
+            onClick={() => onClick(character)}
+            className="absolute inset-0 w-full h-full bg-transparent cursor-pointer z-20"
+            aria-label={`Select ${character.name}`}
+          />
+        )}
       </div>
     </motion.div>
   );
