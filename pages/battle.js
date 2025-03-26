@@ -672,12 +672,22 @@ export default function BattlePage() {
           // Character survived - give them the exp and potentially level up
           const newExp = char.exp + rewards.exp;
           let newLevel = char.level;
+          let newStats = { ...char.stats };
           
           // Check if character should level up
           const expToNextLevel = char.level * 100; // Same formula as in Character.js
           if (newExp >= expToNextLevel) {
             newLevel = char.level + 1;
             console.log(`${char.name} leveled up to ${newLevel}!`);
+            
+            // Update stats based on level up
+            newStats = {
+              attack: Math.floor(char.stats.attack * 1.1),
+              defense: Math.floor(char.stats.defense * 1.1),
+              health: Math.floor(char.stats.health * 1.1),
+              speed: Math.floor(char.stats.speed * 1.05),
+              special: Math.floor(char.stats.special * 1.1)
+            };
           }
           
           // Return updated character
@@ -685,14 +695,7 @@ export default function BattlePage() {
             ...char,
             exp: newExp % expToNextLevel, // Reset exp if leveled up
             level: newLevel,
-            // Also update stats if level increased
-            stats: newLevel > char.level ? {
-              attack: Math.floor(char.stats.attack * 1.1),
-              defense: Math.floor(char.stats.defense * 1.1),
-              health: Math.floor(char.stats.health * 1.1),
-              speed: Math.floor(char.stats.speed * 1.05),
-              special: Math.floor(char.stats.special * 1.1)
-            } : char.stats
+            stats: newStats
           };
         }
         
@@ -700,14 +703,14 @@ export default function BattlePage() {
         return char;
       });
       
+      // Update the local state with the new character data
+      setLocalPlayerCharacters(updatedPlayerCharacters);
+      
       // In a real app, we would persist this data
       console.log('Characters with updated levels:', updatedPlayerCharacters.map(c => `${c.name} (LVL ${c.level})`));
-      
-      // We could add a function here to save to local storage or a database
-      savePlayerProgress(updatedPlayerCharacters);
     }
     
-    // Change to results screen
+    // Move to results screen
     setBattleMode('results');
   };
   
