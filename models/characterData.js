@@ -55,7 +55,7 @@ const characters = [
     'Xenomorph',
     [abilities.toxicVenom, abilities.bioRegeneration, abilities.neuralDisruption],
     { attack: 100, defense: 30, health: 320, speed: 60, special: 50 }
-  ),00
+  ),
   new Character(
     4,
     'Epsilon',
