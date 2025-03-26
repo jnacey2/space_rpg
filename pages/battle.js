@@ -657,55 +657,90 @@ export default function BattlePage() {
     setBattleMode('results');
 
     if (results.status === 'playerWin') {
-      // Get current player characters from localStorage
-      const localPlayerCharacters = JSON.parse(localStorage.getItem('playerCharacters') || '[]');
-      
-      // Apply experience to all characters in the battle
-      currentBattle.playerTeam.forEach(battleChar => {
-        const localChar = localPlayerCharacters.find(c => c.id === battleChar.id);
-        if (localChar) {
-          // Add experience and handle level up
-          const leveledUp = localChar.addExp(results.rewards.exp);
-          if (leveledUp) {
-            console.log(`${localChar.name} leveled up to level ${localChar.level}!`);
-          }
-        }
-      });
-      
-      // Save updated characters back to localStorage
-      localStorage.setItem('playerCharacters', JSON.stringify(localPlayerCharacters));
-      
-      // 20% chance to unlock a new character
-      if (Math.random() < 0.2) {
-        const unlockableChars = getUnlockableCharacters();
-        const alreadyUnlocked = localPlayerCharacters.map(char => char.id);
-        const availableToUnlock = unlockableChars.filter(char => !alreadyUnlocked.includes(char.id));
+      try {
+        // Get current player characters from localStorage
+        const localPlayerCharacters = JSON.parse(localStorage.getItem('playerCharacters') || '[]');
         
-        if (availableToUnlock.length > 0) {
-          // Randomly select one character to unlock
-          const newCharacter = availableToUnlock[Math.floor(Math.random() * availableToUnlock.length)];
+        // Apply experience to all characters in the battle
+        if (currentBattle && currentBattle.playerTeam) {
+          currentBattle.playerTeam.forEach(battleChar => {
+            const localChar = localPlayerCharacters.find(c => c.id === battleChar.id);
+            if (localChar) {
+              // Create a proper Character instance for the local character
+              const updatedChar = new Character(
+                localChar.id,
+                localChar.name,
+                localChar.rarity,
+                localChar.level,
+                localChar.exp,
+                localChar.imageUrl,
+                localChar.species,
+                localChar.abilities,
+                localChar.stats
+              );
+              
+              // Add experience and handle level up
+              const leveledUp = updatedChar.addExp(results.rewards.exp);
+              if (leveledUp) {
+                console.log(`${updatedChar.name} leveled up to level ${updatedChar.level}!`);
+              }
+              
+              // Update the character in the local array
+              const charIndex = localPlayerCharacters.findIndex(c => c.id === localChar.id);
+              if (charIndex !== -1) {
+                localPlayerCharacters[charIndex] = updatedChar;
+              }
+            }
+          });
+        }
+        
+        // Save updated characters back to localStorage
+        localStorage.setItem('playerCharacters', JSON.stringify(localPlayerCharacters));
+        
+        // 20% chance to unlock a new character
+        if (Math.random() < 0.2) {
+          const unlockableChars = getUnlockableCharacters();
+          const alreadyUnlocked = localPlayerCharacters.map(char => char.id);
+          const availableToUnlock = unlockableChars.filter(char => !alreadyUnlocked.includes(char.id));
           
-          // Create a new character instance at level 1
-          const unlockedChar = new Character(
-            newCharacter.id,
-            newCharacter.name,
-            newCharacter.species,
-            newCharacter.rarity,
-            newCharacter.baseStats,
-            newCharacter.abilities.map(ability => new Ability(ability))
-          );
-          unlockedChar.level = 1;
-          unlockedChar.experience = 0;
-          
-          // Add to local storage
-          localPlayerCharacters.push(unlockedChar);
-          localStorage.setItem('playerCharacters', JSON.stringify(localPlayerCharacters));
-          
-          // Update current battle's player team
-          if (currentBattle) {
-            currentBattle.playerTeam.push(unlockedChar);
+          if (availableToUnlock.length > 0) {
+            // Randomly select one character to unlock
+            const newCharacter = availableToUnlock[Math.floor(Math.random() * availableToUnlock.length)];
+            
+            // Create a new character instance at level 1
+            const unlockedChar = new Character(
+              newCharacter.id,
+              newCharacter.name,
+              newCharacter.rarity,
+              1, // level
+              0, // exp
+              '', // imageUrl
+              newCharacter.species,
+              newCharacter.abilities.map(ability => new Ability(
+                ability.id,
+                ability.name,
+                ability.description || '',
+                ability.power,
+                ability.type,
+                ability.cooldown,
+                ability.effectChance || 0,
+                ability.effect
+              )),
+              { ...newCharacter.baseStats }
+            );
+            
+            // Add to local storage
+            localPlayerCharacters.push(unlockedChar);
+            localStorage.setItem('playerCharacters', JSON.stringify(localPlayerCharacters));
+            
+            // Update current battle's player team
+            if (currentBattle) {
+              currentBattle.playerTeam.push(unlockedChar);
+            }
           }
         }
+      } catch (error) {
+        console.error('Error handling battle end:', error);
       }
     }
   };

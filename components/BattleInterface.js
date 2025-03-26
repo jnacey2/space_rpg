@@ -26,15 +26,24 @@ const BattleInterface = ({ battle, onAbilityUse, onNextTurn, onBattleEnd }) => {
   
   // Handle battle end
   useEffect(() => {
-    if (battle.status !== 'active') {
+    if (battle && battle.status !== 'active') {
       debugLog('BATTLE_END', `Battle ended with status: ${battle.status}`);
-      const rewards = battle.getRewards();
-      onBattleEnd && onBattleEnd({
-        status: battle.status,
-        rewards: rewards
-      });
+      try {
+        const rewards = battle.getRewards();
+        onBattleEnd && onBattleEnd({
+          status: battle.status,
+          rewards: rewards
+        });
+      } catch (error) {
+        console.error('Error handling battle end in interface:', error);
+        // Fallback to basic battle end without rewards
+        onBattleEnd && onBattleEnd({
+          status: battle.status,
+          rewards: { exp: 0, gold: 0 }
+        });
+      }
     }
-  }, [battle.status]);
+  }, [battle?.status]);
   
   const currentCharacter = battle.getCurrentCharacter();
   const isPlayerTurn = battle.isPlayerTurn;
