@@ -274,7 +274,11 @@ class Battle {
   nextTurn() {
     debugLog('TURN', 'Processing next turn', { 
       currentTurn: this.currentTurn, 
-      turnOrder: this.turnOrder.map(c => c.name),
+      turnOrder: this.turnOrder.map(c => ({
+        name: c.name,
+        health: c.stats.health,
+        isDead: c.stats.health <= 0
+      })),
       currentOverride: this.overrideCurrentCharacter?.name
     });
     
@@ -299,25 +303,20 @@ class Battle {
       
       // If we've looped through all characters and they're all dead, check battle status
       if (loopGuard >= this.turnOrder.length) {
-        debugLog('TURN', 'All characters appear to be defeated, checking battle status');
+        debugLog('TURN', 'All characters in turn order are defeated, checking final status', {
+          playerTeamStatus: this.playerTeam.map(char => ({
+            name: char.name,
+            health: char.stats.health,
+            isDead: char.stats.health <= 0
+          })),
+          enemyTeamStatus: this.enemyTeam.map(char => ({
+            name: char.name,
+            health: char.stats.health,
+            isDead: char.stats.health <= 0
+          }))
+        });
+        
         this.checkBattleStatus();
-        // If battle is still active but all characters are dead, force end
-        if (this.status === 'active') {
-          // Check if all player characters are dead
-          const allPlayersDead = this.playerTeam.every(char => char.stats.health <= 0);
-          // Check if all enemy characters are dead
-          const allEnemiesDead = this.enemyTeam.every(char => char.stats.health <= 0);
-          
-          if (allPlayersDead) {
-            this.status = 'enemyWin';
-            debugLog('TURN', 'Battle ended - all player characters defeated');
-            this.logs.push('You have been defeated!');
-          } else if (allEnemiesDead) {
-            this.status = 'playerWin';
-            debugLog('TURN', 'Battle ended - all enemy characters defeated');
-            this.logs.push('Victory! All enemies have been defeated!');
-          }
-        }
         return;
       }
     }
@@ -372,10 +371,24 @@ class Battle {
   checkBattleStatus() {
     // Check if all player characters are defeated
     const allPlayersDead = this.playerTeam.every(character => character.stats.health <= 0);
-    
-    // Check if all enemy characters are defeated
     const allEnemiesDead = this.enemyTeam.every(character => character.stats.health <= 0);
     
+    debugLog('STATUS', 'Checking battle status', {
+      playerTeamStatus: this.playerTeam.map(char => ({
+        name: char.name,
+        health: char.stats.health,
+        isDead: char.stats.health <= 0
+      })),
+      enemyTeamStatus: this.enemyTeam.map(char => ({
+        name: char.name,
+        health: char.stats.health,
+        isDead: char.stats.health <= 0
+      })),
+      allPlayersDead,
+      allEnemiesDead,
+      currentStatus: this.status
+    });
+
     const oldStatus = this.status;
     
     if (allPlayersDead) {
