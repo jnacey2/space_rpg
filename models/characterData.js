@@ -18,6 +18,13 @@ const abilities = {
   // Buff abilities
   shieldMatrix: new Ability(9, 'Shield Matrix', 'Projects a protective energy field', 0, 'buff', 3, 100, { type: 'shield', amount: 50, duration: 3 }),
   neuralOverclock: new Ability(10, 'Neural Overclock', 'Enhances reflexes and speed', 0, 'buff', 4, 100, { type: 'speed', amount: 20, duration: 2 }),
+  
+  // New abilities for unlockable characters
+  timeFreeze: new Ability(11, 'Time Freeze', 'Temporarily stops time for the target', 35, 'damage', 2, 40, { type: 'stun', amount: 0, duration: 2 }),
+  plasmaShield: new Ability(12, 'Plasma Shield', 'Creates a shield of plasma energy', 0, 'buff', 3, 100, { type: 'shield', amount: 75, duration: 2 }),
+  quantumHeal: new Ability(13, 'Quantum Heal', 'Heals using quantum energy', 40, 'heal', 2, 30, { type: 'regeneration', amount: 8, duration: 2 }),
+  voidRift: new Ability(14, 'Void Rift', 'Opens a rift in space-time', 45, 'damage', 3, 20, { type: 'poison', amount: 15, duration: 2 }),
+  neuralSync: new Ability(15, 'Neural Sync', 'Synchronizes neural patterns for enhanced abilities', 0, 'buff', 4, 100, { type: 'speed', amount: 25, duration: 3 }),
 };
 
 // Define characters
@@ -115,6 +122,41 @@ const characters = [
     [abilities.quantumStrike, abilities.neuralOverclock, abilities.toxicVenom],
     { attack: 100, defense: 70, health: 600, speed: 70, special: 90 }
   ),
+  
+  // Unlockable Characters
+  new Character(
+    5,
+    'Chronos',
+    'epic',
+    1,
+    0,
+    '/images/time-warrior.jpg',
+    'Time Manipulator',
+    [abilities.timeFreeze, abilities.quantumStrike, abilities.plasmaShield],
+    { attack: 55, defense: 45, health: 280, speed: 60, special: 65 }
+  ),
+  new Character(
+    6,
+    'Void Walker',
+    'legendary',
+    1,
+    0,
+    '/images/void-walker.jpg',
+    'Void Entity',
+    [abilities.voidRift, abilities.gravitySurge, abilities.neuralSync],
+    { attack: 70, defense: 40, health: 300, speed: 55, special: 80 }
+  ),
+  new Character(
+    7,
+    'Quantum Healer',
+    'rare',
+    1,
+    0,
+    '/images/quantum-healer.jpg',
+    'Quantum Being',
+    [abilities.quantumHeal, abilities.shieldMatrix, abilities.neuralOverclock],
+    { attack: 35, defense: 50, health: 250, speed: 45, special: 90 }
+  ),
 ];
 
 // Utility functions
@@ -137,5 +179,118 @@ export function getBasicEnemies() {
 export function getAdvancedEnemies() {
   return characters.filter(char => char.id >= 200);
 }
+
+export function getUnlockableCharacters() {
+  return characters.filter(char => char.id >= 5);
+}
+
+// Unlockable characters
+export const unlockableCharacters = [
+  {
+    id: 'chronos',
+    name: 'Chronos',
+    species: 'Time Manipulator',
+    rarity: 'epic',
+    baseStats: {
+      health: 85,
+      attack: 75,
+      defense: 65,
+      speed: 80,
+      special: 90
+    },
+    abilities: [
+      {
+        id: 'time-stop',
+        name: 'Time Stop',
+        description: 'Freeze time for all enemies, preventing their next action',
+        power: 0,
+        type: 'control',
+        cooldown: 4,
+        effectChance: 100,
+        effect: 'stun'
+      },
+      {
+        id: 'time-rewind',
+        name: 'Time Rewind',
+        description: 'Restore health to all allies by rewinding their wounds',
+        power: 60,
+        type: 'heal',
+        cooldown: 3,
+        effectChance: 100,
+        effect: 'heal'
+      }
+    ]
+  },
+  {
+    id: 'void-walker',
+    name: 'Void Walker',
+    species: 'Void Entity',
+    rarity: 'legendary',
+    baseStats: {
+      health: 90,
+      attack: 85,
+      defense: 75,
+      speed: 70,
+      special: 95
+    },
+    abilities: [
+      {
+        id: 'void-blast',
+        name: 'Void Blast',
+        description: 'Deal massive damage to all enemies',
+        power: 100,
+        type: 'damage',
+        cooldown: 4,
+        effectChance: 30,
+        effect: 'void'
+      },
+      {
+        id: 'void-shield',
+        name: 'Void Shield',
+        description: 'Create a protective void barrier for all allies',
+        power: 0,
+        type: 'buff',
+        cooldown: 3,
+        effectChance: 100,
+        effect: 'shield'
+      }
+    ]
+  },
+  {
+    id: 'quantum-healer',
+    name: 'Quantum Healer',
+    species: 'Quantum Entity',
+    rarity: 'rare',
+    baseStats: {
+      health: 80,
+      attack: 60,
+      defense: 70,
+      speed: 75,
+      special: 85
+    },
+    abilities: [
+      {
+        id: 'quantum-heal',
+        name: 'Quantum Heal',
+        description: 'Heal all allies and remove negative effects',
+        power: 70,
+        type: 'heal',
+        cooldown: 3,
+        effectChance: 100,
+        effect: 'heal'
+      },
+      {
+        id: 'quantum-shield',
+        name: 'Quantum Shield',
+        description: 'Create a quantum barrier that absorbs damage',
+        power: 0,
+        type: 'buff',
+        cooldown: 4,
+        effectChance: 100,
+        effect: 'shield'
+      }
+    ]
+  }
+];
 
 export default characters; 

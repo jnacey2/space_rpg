@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import Layout from '../components/Layout';
 import CharacterCard from '../components/CharacterCard';
 import BattleInterface from '../components/BattleInterface';
-import { getPlayerCharacters, getBasicEnemies, getAdvancedEnemies } from '../models/characterData';
+import { getPlayerCharacters, getBasicEnemies, getAdvancedEnemies, getUnlockableCharacters } from '../models/characterData';
 import Battle from '../models/Battle';
 import Ability from '../models/Ability';
 import Character from '../models/Character';
@@ -655,63 +655,47 @@ export default function BattlePage() {
     }
   };
   
-  const handleBattleEnd = (status, rewards) => {
-    // Store battle results for the results screen
-    setBattleResults({ status, rewards });
-    
-    // If player won, save character progress
-    if (status === 'playerWin' && rewards) {
-      console.log('Battle won! Saving character progress...');
-      
-      // Update the player characters with their new levels and experience
-      const updatedPlayerCharacters = localPlayerCharacters.map(char => {
-        // Find the matching character from the battle
-        const battleChar = currentBattle.playerTeam.find(c => c.id === char.id);
-        
-        if (battleChar && battleChar.stats.health > 0) {
-          // Character survived - give them the exp and potentially level up
-          const newExp = char.exp + rewards.exp;
-          let newLevel = char.level;
-          let newStats = { ...char.stats };
-          
-          // Check if character should level up
-          const expToNextLevel = char.level * 100; // Same formula as in Character.js
-          if (newExp >= expToNextLevel) {
-            newLevel = char.level + 1;
-            console.log(`${char.name} leveled up to ${newLevel}!`);
-            
-            // Update stats based on level up
-            newStats = {
-              attack: Math.floor(char.stats.attack * 1.1),
-              defense: Math.floor(char.stats.defense * 1.1),
-              health: Math.floor(char.stats.health * 1.1),
-              speed: Math.floor(char.stats.speed * 1.05),
-              special: Math.floor(char.stats.special * 1.1)
-            };
-          }
-          
-          // Return updated character
-          return {
-            ...char,
-            exp: newExp % expToNextLevel, // Reset exp if leveled up
-            level: newLevel,
-            stats: newStats
-          };
-        }
-        
-        // Character didn't participate or was defeated
-        return char;
-      });
-      
-      // Update the local state with the new character data
-      setLocalPlayerCharacters(updatedPlayerCharacters);
-      
-      // In a real app, we would persist this data
-      console.log('Characters with updated levels:', updatedPlayerCharacters.map(c => `${c.name} (LVL ${c.level})`));
-    }
-    
-    // Move to results screen
+  const handleBattleEnd = (results) => {
+    setBattleResults(results);
     setBattleMode('results');
+
+    if (results.status === 'playerWin') {
+      // Get current player characters from localStorage
+      const localPlayerCharacters = JSON.parse(localStorage.getItem('playerCharacters') || '[]');
+      
+      // 20% chance to unlock a new character
+      if (Math.random() < 0.2) {
+        const unlockableChars = getUnlockableCharacters();
+        const alreadyUnlocked = localPlayerCharacters.map(char => char.id);
+        const availableToUnlock = unlockableChars.filter(char => !alreadyUnlocked.includes(char.id));
+        
+        if (availableToUnlock.length > 0) {
+          // Randomly select one character to unlock
+          const newCharacter = availableToUnlock[Math.floor(Math.random() * availableToUnlock.length)];
+          
+          // Create a new character instance at level 1
+          const unlockedChar = new Character(
+            newCharacter.id,
+            newCharacter.name,
+            newCharacter.species,
+            newCharacter.rarity,
+            newCharacter.baseStats,
+            newCharacter.abilities.map(ability => new Ability(ability))
+          );
+          unlockedChar.level = 1;
+          unlockedChar.experience = 0;
+          
+          // Add to local storage
+          localPlayerCharacters.push(unlockedChar);
+          localStorage.setItem('playerCharacters', JSON.stringify(localPlayerCharacters));
+          
+          // Update current battle's player team
+          if (currentBattle) {
+            currentBattle.playerTeam.push(unlockedChar);
+          }
+        }
+      }
+    }
   };
   
   const resetBattle = () => {
@@ -894,41 +878,59 @@ export default function BattlePage() {
           </motion.div>
         )}
         
-        {battleMode === 'results' && battleResults && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="text-center"
-          >
-            <h1 className="text-4xl md:text-6xl font-futuristic mb-8 text-white">
-              {battleResults.status === 'playerWin' ? (
-                <span className="text-neon-green">VICTORY!</span>
-              ) : (
-                <span className="text-red-500">DEFEAT!</span>
-              )}
-            </h1>
-            
-            {battleResults.status === 'playerWin' && battleResults.rewards && (
-              <div className="mb-12">
-                <div className="inline-block bg-space-black/70 p-6 rounded-lg sci-fi-border mb-6">
-                  <h3 className="text-xl font-futuristic text-white mb-4">Battle Rewards</h3>
-                  
-                  <div className="text-gray-300 mb-4">
-                    <div className="text-lg">Experience gained: <span className="text-neon-green font-bold">{battleResults.rewards.exp} XP</span></div>
-                    <div className="text-lg">Gold earned: <span className="text-yellow-400 font-bold">{battleResults.rewards.gold} G</span></div>
+        {battleMode === 'results' && (
+          <div className="container mx-auto px-4 py-8">
+            <div className="max-w-2xl mx-auto bg-space-black/80 rounded-lg p-6 sci-fi-border">
+              <h2 className="text-2xl font-futuristic text-white mb-6">
+                {battleResults.status === 'playerWin' ? 'Victory!' : 'Defeat'}
+              </h2>
+              
+              {battleResults.status === 'playerWin' && battleResults.rewards && (
+                <>
+                  <div className="mb-6">
+                    <h3 className="text-lg font-futuristic text-neon-green mb-2">Battle Rewards</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-black/30 p-4 rounded">
+                        <div className="text-sm text-gray-400">Experience</div>
+                        <div className="text-xl text-white">+{battleResults.rewards.exp}</div>
+                      </div>
+                      <div className="bg-black/30 p-4 rounded">
+                        <div className="text-sm text-gray-400">Gold</div>
+                        <div className="text-xl text-white">+{battleResults.rewards.gold}</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                  
+                  {/* Show newly unlocked character if any */}
+                  {currentBattle && currentBattle.playerTeam.length > localPlayerCharacters.length && (
+                    <div className="mb-6 p-4 bg-neon-green/10 border border-neon-green/30 rounded">
+                      <h3 className="text-lg font-futuristic text-neon-green mb-2">New Character Unlocked!</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {currentBattle.playerTeam
+                          .filter(char => !localPlayerCharacters.find(c => c.id === char.id))
+                          .map(char => (
+                            <div key={char.id} className="bg-black/30 p-4 rounded">
+                              <div className="text-white font-futuristic">{char.name}</div>
+                              <div className="text-sm text-gray-400">{char.species}</div>
+                              <div className="text-sm text-neon-green mt-2">Level 1</div>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+              
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => setBattleMode('select')}
+                  className="px-6 py-2 rounded-md text-lg font-futuristic bg-neon-green text-space-black hover:bg-neon-green/80"
+                >
+                  Back to Character Selection
+                </button>
               </div>
-            )}
-            
-            <button
-              onClick={resetBattle}
-              className="px-8 py-3 bg-cosmic-blue text-white rounded-md text-xl font-futuristic hover:bg-cosmic-blue/80"
-            >
-              Return to Team Selection
-            </button>
-          </motion.div>
+            </div>
+          </div>
         )}
       </div>
     </Layout>
