@@ -316,80 +316,62 @@ const BattleInterface = ({ battle, onAbilityUse, onNextTurn, onBattleEnd }) => {
           // Add a small delay before AI turn
           await new Promise(resolve => setTimeout(resolve, 1000));
           
-          // Find an available ability (not on cooldown)
-          const availableAbilities = currentCharacter.abilities.filter(a => a.currentCooldown === 0);
-          debugLog('AI_TURN', 'Available abilities:', availableAbilities.map(a => a.name));
+          // In hard mode, get all available enemy characters
+          const activeEnemies = battle.isHardMode ? 
+            battle.enemyTeam.filter(enemy => enemy.stats.health > 0) :
+            [currentCharacter];
           
-          if (availableAbilities.length === 0) {
-            debugLog('AI_TURN', 'No abilities available (all on cooldown)');
-            return;
-          }
-          
-          // Select a random available ability
-          const ability = availableAbilities[Math.floor(Math.random() * availableAbilities.length)];
-          debugLog('AI_TURN', `Selected ability: ${ability.name}`, {
-            cooldown: ability.cooldown,
-            currentCooldown: ability.currentCooldown
-          });
-          
-          // Find valid targets based on ability type
-          let potentialTargets = [];
-          if (ability.type === 'damage') {
-            potentialTargets = battle.playerTeam.filter(char => char.stats.health > 0);
-          } else if (ability.type === 'heal' || ability.type === 'buff') {
-            potentialTargets = battle.enemyTeam.filter(char => char.stats.health > 0);
-          }
-          
-          debugLog('AI_TURN', 'Potential targets:', potentialTargets.map(t => t.name));
-          
-          if (potentialTargets.length === 0) {
-            debugLog('AI_TURN', 'No valid targets available');
-            return;
-          }
-          
-          // Select a random target from potential targets
-          const target = potentialTargets[Math.floor(Math.random() * potentialTargets.length)];
-          debugLog('AI_TURN', `Selected target: ${target.name}`);
-          
-          if (ability && target) {
-            // Let the UI show the action
-            setSelectedCharacter(currentCharacter);
-            setSelectedAbility(ability);
-            setSelectedTarget(target);
-            setAnimatingAction(true);
+          // Execute actions for each active enemy
+          for (const enemy of activeEnemies) {
+            // Find an available ability (not on cooldown)
+            const availableAbilities = enemy.abilities.filter(a => a.currentCooldown === 0);
+            debugLog('AI_TURN', `Available abilities for ${enemy.name}:`, availableAbilities.map(a => a.name));
             
-            // Use the ability
-            try {
-              debugLog('AI_TURN', `Executing ability ${ability.name} on target ${target.name}`);
-              const success = onAbilityUse(ability, target);
-              debugLog('AI_TURN', `Ability use result: ${success ? 'SUCCESS' : 'FAILED'}`);
-              
-              if (!success) {
-                debugLog('AI_TURN', 'Ability use failed');
-                setAnimatingAction(false);
-                setSelectedCharacter(null);
-                setSelectedAbility(null);
-                setSelectedTarget(null);
-                return;
-              }
-            } catch (error) {
-              debugLog('AI_TURN', 'Error executing ability:', error);
-              setAnimatingAction(false);
-              setSelectedCharacter(null);
-              setSelectedAbility(null);
-              setSelectedTarget(null);
-              return;
+            if (availableAbilities.length === 0) {
+              debugLog('AI_TURN', `No abilities available for ${enemy.name} (all on cooldown)`);
+              continue;
             }
             
-            // Wait for animation
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // Select a random available ability
+            const ability = availableAbilities[Math.floor(Math.random() * availableAbilities.length)];
+            debugLog('AI_TURN', `Selected ability for ${enemy.name}: ${ability.name}`, {
+              cooldown: ability.cooldown,
+              currentCooldown: ability.currentCooldown
+            });
             
-            // Reset UI state
-            setSelectedCharacter(null);
-            setSelectedAbility(null);
-            setSelectedTarget(null);
-            setAnimatingAction(false);
+            // Find valid targets based on ability type
+            let potentialTargets = [];
+            if (ability.type === 'damage') {
+              potentialTargets = battle.playerTeam.filter(char => char.stats.health > 0);
+            } else if (ability.type === 'heal' || ability.type === 'buff') {
+              potentialTargets = battle.enemyTeam.filter(char => char.stats.health > 0);
+            }
+            
+            if (potentialTargets.length === 0) {
+              debugLog('AI_TURN', `No valid targets for ${enemy.name}'s ${ability.name}`);
+              continue;
+            }
+            
+            // Select random target
+            const target = potentialTargets[Math.floor(Math.random() * potentialTargets.length)];
+            debugLog('AI_TURN', `Selected target for ${enemy.name}: ${target.name}`);
+            
+            // Override current character to the acting enemy
+            battle.overrideCurrentCharacter = enemy;
+            
+            // Execute ability
+            await onAbilityUse(ability, target);
+            
+            // Add delay between enemy actions
+            if (battle.isHardMode) {
+              await new Promise(resolve => setTimeout(resolve, 500));
+            }
           }
+          
+          // Clear override and advance turn
+          battle.overrideCurrentCharacter = null;
+          onNextTurn();
+          
         } catch (error) {
           debugLog('AI_TURN', 'Critical error in AI turn:', error);
           setAnimatingAction(false);

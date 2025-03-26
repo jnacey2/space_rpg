@@ -7,17 +7,19 @@ const debugLog = (area, message, data = null) => {
 };
 
 class Battle {
-  constructor(playerTeam, enemyTeam) {
+  constructor(playerTeam, enemyTeam, isHardMode = false) {
     this.playerTeam = playerTeam;
     this.enemyTeam = enemyTeam;
     this.turnOrder = [];
     this.currentTurn = 0;
     this.logs = [];
     this.status = 'active'; // active, playerWin, enemyWin
+    this.isHardMode = isHardMode;
     
     debugLog('INIT', 'Battle constructor called', {
       playerTeam: playerTeam.map(p => p.name),
-      enemyTeam: enemyTeam.map(e => e.name)
+      enemyTeam: enemyTeam.map(e => e.name),
+      isHardMode
     });
     
     this.initializeBattle();

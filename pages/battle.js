@@ -43,14 +43,13 @@ export default function BattlePage() {
     setBattleMode('prepare');
   };
   
-  const generateEnemyTeam = () => {
-    console.log('Generating enemy team with difficulty:', battleDifficulty);
+  const generateEnemyTeam = (teamSize, difficulty) => {
+    console.log('Generating enemy team with difficulty:', difficulty);
     
     // Always create fresh instances of enemies to avoid reference issues
-    if (battleDifficulty === 'easy') {
+    if (difficulty === 'easy') {
       // For easy mode - just use basic enemies
       const basicEnemies = getBasicEnemies();
-      const teamSize = Math.min(selectedTeam.length, basicEnemies.length);
       const shuffled = [...basicEnemies].sort(() => 0.5 - Math.random());
       const selectedEnemies = shuffled.slice(0, teamSize);
       
@@ -184,7 +183,6 @@ export default function BattlePage() {
       
       // Create a team based on player team size - add basic enemies if needed
       let enemyTeam = [];
-      const teamSize = selectedTeam.length;
       
       // Add advanced enemies first
       for (let i = 0; i < Math.min(teamSize, advancedEnemies.length); i++) {
@@ -251,9 +249,8 @@ export default function BattlePage() {
   
   const startBattle = () => {
     try {
-      // Clone player characters properly
+      // Clone player characters to avoid modifying the originals
       const clonedPlayerTeam = selectedTeam.map(char => {
-        // Clone abilities properly with their methods
         const clonedAbilities = char.abilities.map(ability => {
           return new Ability(
             ability.id,
@@ -263,12 +260,10 @@ export default function BattlePage() {
             ability.type,
             ability.cooldown,
             ability.effectChance,
-            ability.effect,
-            ability.currentCooldown // Copy the current cooldown
+            ability.effect
           );
         });
         
-        // Create a new Character instance with cloned data
         return new Character(
           char.id,
           char.name,
@@ -278,12 +273,12 @@ export default function BattlePage() {
           char.imageUrl,
           char.species,
           clonedAbilities,
-          { ...char.stats } // Clone stats object
+          { ...char.stats }
         );
       });
       
-      // Get enemy team data based on difficulty
-      const enemyTeamData = generateEnemyTeam();
+      // Generate enemy team based on difficulty
+      const enemyTeamData = generateEnemyTeam(selectedTeam.length, battleDifficulty);
       
       // Convert enemy data to proper Character instances
       const enemyTeam = enemyTeamData.map(enemy => {
@@ -329,10 +324,11 @@ export default function BattlePage() {
       
       console.log("Battle teams ready:", {
         players: clonedPlayerTeam.map(p => p.name),
-        enemies: enemyTeam.map(e => e.name)
+        enemies: enemyTeam.map(e => e.name),
+        difficulty: battleDifficulty
       });
       
-      const battle = new Battle(clonedPlayerTeam, enemyTeam);
+      const battle = new Battle(clonedPlayerTeam, enemyTeam, battleDifficulty === 'hard');
       setCurrentBattle(battle);
       setBattleMode('battle');
     } catch (error) {
