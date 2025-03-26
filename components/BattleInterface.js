@@ -28,7 +28,11 @@ const BattleInterface = ({ battle, onAbilityUse, onNextTurn, onBattleEnd }) => {
   useEffect(() => {
     if (battle.status !== 'active') {
       debugLog('BATTLE_END', `Battle ended with status: ${battle.status}`);
-      onBattleEnd && onBattleEnd(battle.status, battle.getRewards());
+      const rewards = battle.getRewards();
+      onBattleEnd && onBattleEnd({
+        status: battle.status,
+        rewards: rewards
+      });
     }
   }, [battle.status]);
   

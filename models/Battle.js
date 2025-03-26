@@ -371,9 +371,9 @@ class Battle {
   }
   
   checkBattleStatus() {
-    // Check if all player characters are defeated
-    const allPlayersDead = this.playerTeam.every(character => character.stats.health <= 0);
-    const allEnemiesDead = this.enemyTeam.every(character => character.stats.health <= 0);
+    // Count living characters on each team
+    const livingPlayers = this.playerTeam.filter(character => character.stats.health > 0).length;
+    const livingEnemies = this.enemyTeam.filter(character => character.stats.health > 0).length;
     
     debugLog('STATUS', 'Checking battle status', {
       playerTeamStatus: this.playerTeam.map(char => ({
@@ -386,25 +386,36 @@ class Battle {
         health: char.stats.health,
         isDead: char.stats.health <= 0
       })),
-      allPlayersDead,
-      allEnemiesDead,
+      livingPlayers,
+      livingEnemies,
       currentStatus: this.status
     });
 
-    const oldStatus = this.status;
-    
-    if (allPlayersDead) {
-      this.status = 'enemyWin';
-      debugLog('STATUS', 'Battle ended: All player characters defeated');
-      this.logs.push('You have been defeated!');
-    } else if (allEnemiesDead) {
-      this.status = 'playerWin';
-      debugLog('STATUS', 'Battle ended: All enemy characters defeated');
-      this.logs.push('Victory! All enemies have been defeated!');
-    }
-    
-    if (oldStatus !== this.status) {
-      debugLog('STATUS', `Battle status changed from ${oldStatus} to ${this.status}`);
+    // Only update status if the battle is still active
+    if (this.status === 'active') {
+      if (livingPlayers === 0) {
+        this.status = 'enemyWin';
+        debugLog('STATUS', 'Battle ended: All player characters defeated');
+        this.logs.push('You have been defeated!');
+      } else if (livingEnemies === 0) {
+        this.status = 'playerWin';
+        debugLog('STATUS', 'Battle ended: All enemy characters defeated');
+        this.logs.push('Victory! All enemies have been defeated!');
+      }
+      
+      // Log the final status change
+      if (this.status !== 'active') {
+        debugLog('STATUS', `Battle status changed from active to ${this.status}`, {
+          finalPlayerTeamStatus: this.playerTeam.map(char => ({
+            name: char.name,
+            health: char.stats.health
+          })),
+          finalEnemyTeamStatus: this.enemyTeam.map(char => ({
+            name: char.name,
+            health: char.stats.health
+          }))
+        });
+      }
     }
   }
   

@@ -652,6 +652,7 @@ export default function BattlePage() {
   };
   
   const handleBattleEnd = (results) => {
+    console.log('Battle ended with results:', results);
     setBattleResults(results);
     setBattleMode('results');
 
