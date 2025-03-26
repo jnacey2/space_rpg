@@ -1,5 +1,5 @@
 {
-  "name": "stellar-vanguard",
+  "name": "stellar-vanguard-tactical-rpg",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -15,11 +15,12 @@
     "react",
     "sci-fi",
     "tactical",
-    "turn-based"
+    "turn-based",
+    "stellar-vanguard"
   ],
   "author": "",
   "license": "MIT",
-  "description": "An epic sci-fi tactical RPG where you command a team of diverse heroes in turn-based strategic combat.",
+  "description": "Stellar Vanguard: An epic sci-fi tactical RPG where you command a team of diverse heroes in turn-based strategic combat.",
   "dependencies": {
     "framer-motion": "^12.6.0",
     "next": "^15.2.4",
