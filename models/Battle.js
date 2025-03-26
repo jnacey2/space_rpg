@@ -303,9 +303,20 @@ class Battle {
         this.checkBattleStatus();
         // If battle is still active but all characters are dead, force end
         if (this.status === 'active') {
-          this.status = 'playerWin'; // Default to player win in this edge case
-          debugLog('TURN', 'Battle ended - no valid characters remain!');
-          this.logs.push('Battle ended - no valid characters remain!');
+          // Check if all player characters are dead
+          const allPlayersDead = this.playerTeam.every(char => char.stats.health <= 0);
+          // Check if all enemy characters are dead
+          const allEnemiesDead = this.enemyTeam.every(char => char.stats.health <= 0);
+          
+          if (allPlayersDead) {
+            this.status = 'enemyWin';
+            debugLog('TURN', 'Battle ended - all player characters defeated');
+            this.logs.push('You have been defeated!');
+          } else if (allEnemiesDead) {
+            this.status = 'playerWin';
+            debugLog('TURN', 'Battle ended - all enemy characters defeated');
+            this.logs.push('Victory! All enemies have been defeated!');
+          }
         }
         return;
       }
