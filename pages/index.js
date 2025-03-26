@@ -13,7 +13,7 @@ export default function Home() {
           className="max-w-4xl mx-auto"
         >
           <h1 className="text-5xl md:text-7xl font-futuristic mb-6 text-neon-green">
-            <span className="text-white">SPACE</span> COLLECTORS
+            <span className="text-white">STELLAR</span> VANGUARD
           </h1>
           
           <p className="text-xl mb-8 text-gray-300">
