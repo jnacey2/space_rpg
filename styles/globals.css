@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+  @apply bg-space-black text-white font-base;
+  background-image: url('/images/space-background.jpg');
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-futuristic;
+}
+
+.sci-fi-border {
+  @apply border-2 border-neon-green rounded-md shadow-lg shadow-neon-green/30;
+}
+
+.alien-card {
+  @apply bg-space-black/70 backdrop-blur-sm sci-fi-border p-4 transition-all duration-300;
+}
+
+.alien-card:hover {
+  @apply shadow-xl shadow-neon-green/50 scale-105;
+} 
