@@ -10,6 +10,11 @@ class Character {
     this.abilities = abilities; // array of ability objects
     this.stats = stats; // { attack, defense, health, speed, special }
 
+    // Ensure stats are numbers
+    Object.keys(this.stats).forEach(key => {
+      this.stats[key] = parseInt(this.stats[key]) || 0;
+    });
+
     // Bind methods to ensure they're available after serialization
     this.expToNextLevel = this.expToNextLevel.bind(this);
     this.addExp = this.addExp.bind(this);
@@ -53,26 +58,43 @@ class Character {
       this.exp = excess; // Carry over excess experience
       
       // Increase stats based on level up
-      this.stats.attack += Math.floor(this.stats.attack * 0.1);
-      this.stats.defense += Math.floor(this.stats.defense * 0.1);
-      this.stats.health += Math.floor(this.stats.health * 0.1);
-      this.stats.speed += Math.floor(this.stats.speed * 0.05);
-      this.stats.special += Math.floor(this.stats.special * 0.1);
+      const statIncrease = {
+        attack: Math.floor(this.stats.attack * 0.1),
+        defense: Math.floor(this.stats.defense * 0.1),
+        health: Math.floor(this.stats.health * 0.1),
+        speed: Math.floor(this.stats.speed * 0.05),
+        special: Math.floor(this.stats.special * 0.1)
+      };
       
-      console.log(`${this.name} leveled up to ${this.level}! Stats increased:`, this.stats);
+      Object.keys(statIncrease).forEach(stat => {
+        this.stats[stat] += statIncrease[stat];
+      });
+      
+      console.log(`${this.name} leveled up to ${this.level}!`, {
+        oldStats: { ...this.stats, ...statIncrease },
+        newStats: this.stats
+      });
+      
       return true;
     }
     return false;
   }
   
   expToNextLevel() {
+    // Base XP needed is 100, increases by 10% per level
     return Math.floor(100 * Math.pow(1.1, this.level - 1));
   }
   
   addExp(amount) {
+    if (!amount || amount <= 0) {
+      console.log(`Invalid experience amount for ${this.name}: ${amount}`);
+      return false;
+    }
+    
     console.log(`${this.name} gaining ${amount} experience`);
+    const oldExp = this.exp;
     this.exp += amount;
-    console.log(`${this.name} now has ${this.exp}/${this.expToNextLevel()} experience`);
+    console.log(`${this.name} XP: ${oldExp} -> ${this.exp} (${this.expToNextLevel()} needed for next level)`);
     
     // Keep leveling up while we have enough experience
     let leveled = false;

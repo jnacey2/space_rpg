@@ -660,14 +660,15 @@ export default function BattlePage() {
       try {
         // Get current player characters from localStorage
         const localPlayerCharacters = JSON.parse(localStorage.getItem('playerCharacters') || '[]');
+        let updatedCharacters = [...localPlayerCharacters];
         
         // Apply experience to all characters in the battle
         if (currentBattle && currentBattle.playerTeam) {
           currentBattle.playerTeam.forEach(battleChar => {
-            const localChar = localPlayerCharacters.find(c => c.id === battleChar.id);
-            if (localChar) {
+            const charIndex = updatedCharacters.findIndex(c => c.id === battleChar.id);
+            if (charIndex !== -1) {
               // Create proper Ability instances
-              const abilities = localChar.abilities.map(ability => 
+              const abilities = updatedCharacters[charIndex].abilities.map(ability => 
                 new Ability(
                   ability.id,
                   ability.name,
@@ -682,56 +683,52 @@ export default function BattlePage() {
               
               // Create a proper Character instance with the current state
               const updatedChar = new Character(
-                localChar.id,
-                localChar.name,
-                localChar.rarity,
-                localChar.level || 1,
-                localChar.exp || 0,
-                localChar.imageUrl || '',
-                localChar.species,
+                updatedCharacters[charIndex].id,
+                updatedCharacters[charIndex].name,
+                updatedCharacters[charIndex].rarity,
+                updatedCharacters[charIndex].level || 1,
+                updatedCharacters[charIndex].exp || 0,
+                updatedCharacters[charIndex].imageUrl || '',
+                updatedCharacters[charIndex].species,
                 abilities,
-                { ...localChar.stats }
+                { ...updatedCharacters[charIndex].stats }
               );
               
               // Add experience and handle level up
-              console.log(`Adding ${results.rewards.exp} experience to ${updatedChar.name}`);
-              console.log('Before:', { level: updatedChar.level, exp: updatedChar.exp });
-              
+              console.log(`Before XP update - ${updatedChar.name}: Level ${updatedChar.level}, XP ${updatedChar.exp}`);
               const leveledUp = updatedChar.addExp(results.rewards.exp);
+              console.log(`After XP update - ${updatedChar.name}: Level ${updatedChar.level}, XP ${updatedChar.exp}`);
               
-              console.log('After:', { level: updatedChar.level, exp: updatedChar.exp });
               if (leveledUp) {
                 console.log(`${updatedChar.name} leveled up to level ${updatedChar.level}!`);
               }
               
-              // Update the character in the local array
-              const charIndex = localPlayerCharacters.findIndex(c => c.id === localChar.id);
-              if (charIndex !== -1) {
-                localPlayerCharacters[charIndex] = {
-                  ...updatedChar,
-                  abilities: abilities.map(ability => ({
-                    id: ability.id,
-                    name: ability.name,
-                    description: ability.description,
-                    power: ability.power,
-                    type: ability.type,
-                    cooldown: ability.cooldown,
-                    effectChance: ability.effectChance,
-                    effect: ability.effect
-                  }))
-                };
-              }
+              // Update the character in the array
+              updatedCharacters[charIndex] = {
+                ...updatedChar,
+                abilities: abilities.map(ability => ({
+                  id: ability.id,
+                  name: ability.name,
+                  description: ability.description,
+                  power: ability.power,
+                  type: ability.type,
+                  cooldown: ability.cooldown,
+                  effectChance: ability.effectChance,
+                  effect: ability.effect
+                }))
+              };
             }
           });
+          
+          // Save updated characters back to localStorage
+          console.log('Saving updated characters:', updatedCharacters);
+          localStorage.setItem('playerCharacters', JSON.stringify(updatedCharacters));
         }
-        
-        // Save updated characters back to localStorage
-        localStorage.setItem('playerCharacters', JSON.stringify(localPlayerCharacters));
         
         // 20% chance to unlock a new character
         if (Math.random() < 0.2) {
           const unlockableChars = getUnlockableCharacters();
-          const alreadyUnlocked = localPlayerCharacters.map(char => char.id);
+          const alreadyUnlocked = updatedCharacters.map(char => char.id);
           const availableToUnlock = unlockableChars.filter(char => !alreadyUnlocked.includes(char.id));
           
           if (availableToUnlock.length > 0) {
@@ -766,7 +763,7 @@ export default function BattlePage() {
             );
             
             // Add to local storage with properly serialized abilities
-            localPlayerCharacters.push({
+            updatedCharacters.push({
               ...unlockedChar,
               abilities: newAbilities.map(ability => ({
                 id: ability.id,
@@ -780,7 +777,8 @@ export default function BattlePage() {
               }))
             });
             
-            localStorage.setItem('playerCharacters', JSON.stringify(localPlayerCharacters));
+            // Save the updated character list
+            localStorage.setItem('playerCharacters', JSON.stringify(updatedCharacters));
             
             // Update current battle's player team
             if (currentBattle) {
@@ -790,6 +788,8 @@ export default function BattlePage() {
         }
       } catch (error) {
         console.error('Error handling battle end:', error);
+        console.error('Error details:', error.message);
+        console.error('Stack trace:', error.stack);
       }
     }
   };
