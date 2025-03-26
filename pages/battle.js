@@ -660,6 +660,21 @@ export default function BattlePage() {
       // Get current player characters from localStorage
       const localPlayerCharacters = JSON.parse(localStorage.getItem('playerCharacters') || '[]');
       
+      // Apply experience to all characters in the battle
+      currentBattle.playerTeam.forEach(battleChar => {
+        const localChar = localPlayerCharacters.find(c => c.id === battleChar.id);
+        if (localChar) {
+          // Add experience and handle level up
+          const leveledUp = localChar.addExp(results.rewards.exp);
+          if (leveledUp) {
+            console.log(`${localChar.name} leveled up to level ${localChar.level}!`);
+          }
+        }
+      });
+      
+      // Save updated characters back to localStorage
+      localStorage.setItem('playerCharacters', JSON.stringify(localPlayerCharacters));
+      
       // 20% chance to unlock a new character
       if (Math.random() < 0.2) {
         const unlockableChars = getUnlockableCharacters();
